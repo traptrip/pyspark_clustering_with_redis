@@ -54,4 +54,4 @@ class Clusterizer:
         return m
 
     def save(self, path):
-        self.model.overwrite().save(path)
+        self.model.save(path)
