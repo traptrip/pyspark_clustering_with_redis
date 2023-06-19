@@ -1,6 +1,5 @@
 import logging
 
-import psutil
 from pyspark.ml.clustering import KMeans
 from pyspark.ml.evaluation import ClusteringEvaluator
 from pyspark.ml.feature import VectorAssembler, MinMaxScaler
@@ -22,7 +21,7 @@ class Clusterizer:
         self.model = KMeans(k=config.model.k, seed=config.model.seed)
         self.cfg = config
 
-        print("Process data")
+        logging.info("Process data")
         data = self.spark.read.csv(config.data_path, header=True, sep="\t")
         self.preprocess(data)
 
@@ -45,12 +44,12 @@ class Clusterizer:
         self.data = scaler.fit(data).transform(data)
 
     def fit(self):
-        print("Training")
+        logging.info("Training")
         metric = ClusteringEvaluator()
         self.model = self.model.fit(self.data)
         pred = self.model.transform(self.data)
 
-        print("Evaluating")
+        logging.info("Evaluating")
         m = metric.evaluate(pred)
         return m
 
