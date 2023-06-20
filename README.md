@@ -19,6 +19,11 @@ python src/prepare_dataset.py
 docker compose up --build
 ```
 
+# Run PySpark example 
+```bash
+python src/word_count.py
+```
+
 # Project structure
 ```
 ├── configs                           <- Configs for the project
