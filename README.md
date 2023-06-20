@@ -1,5 +1,5 @@
 # Pyspark Clustering
-ITMO Big data course lab5
+ITMO Big data course lab6
 
 Dataset: [openfoodfacts](https://world.openfoodfacts.org/data)
 
