@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: app
+    build: .
+    image: pythondestroyer/pyspark_clustering:main
+    command: python main.py
+    volumes: 
+      - ./data/:/app/data
+    depends_on: 
+      - redis
+      - store_dataset
+
+  store_dataset: 
+    container_name: store_dataset
+    build: .
+    image: pythondestroyer/pyspark_clustering:main
+    command: python store_dataset.py
+    volumes: 
+      - ./data/:/app/data
+    depends_on: 
+      - redis
+
+  redis: 
+    container_name: redis
+    image: redis:alpine3.18
+

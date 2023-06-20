@@ -1,4 +1,5 @@
 import logging
+import pickle
 
 from pyspark.ml.clustering import KMeans
 from pyspark.ml.evaluation import ClusteringEvaluator
@@ -8,28 +9,35 @@ from pyspark.sql.functions import col
 
 
 class Clusterizer:
-    def __init__(self, config):
+    def __init__(self, config, raw_data):
         self.spark = (
-            SparkSession.builder.appName("OpenFoodEDA")
+            SparkSession.builder.master("local[*]")
+            .appName("OpenFoodClusterizer")
             .config("spark.num.executors", "2")
             .config("spark.executor.cores", "4")
             .config("spark.executor.memory", "4g")
             .config("spark.driver.memory", "4g")
             .getOrCreate()
         )
+        self.sc = self.spark.sparkContext
 
         self.model = KMeans(k=config.model.k, seed=config.model.seed)
         self.cfg = config
 
         logging.info("Process data")
-        data = self.spark.read.csv(config.data_path, header=True, sep="\t")
-        self.preprocess(data)
+        self.preprocess(raw_data)
 
-    def preprocess(self, data):
-        data = data.sample(self.cfg.data_share, 1)
+    def preprocess(self, raw_data):
+        raw_data = pickle.loads(raw_data)
+        with open("tmp.csv", "wb") as f:
+            f.write(raw_data)
+        data = self.spark.read.csv("tmp.csv", header=True, sep="\t")
+        data = data.sample(self.cfg.data.data_share, 1)
 
         # keep only selected columns
-        data = data.select([col(c).cast("float") for c in self.cfg.feature_columns])
+        data = data.select(
+            [col(c).cast("float") for c in self.cfg.model.feature_columns]
+        )
 
         # process NaNs
         data = data.na.fill(0.0).na.fill("unk")

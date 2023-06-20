@@ -3,6 +3,22 @@ ITMO Big data course lab5
 
 Dataset: [openfoodfacts](https://world.openfoodfacts.org/data)
 
+# Prepare dataset
+## Download
+```bash
+sh data/download_data.sh
+```
+
+## Create a sample
+```bash
+python src/prepare_dataset.py
+```
+
+# Run
+```bash
+docker compose up --build
+```
+
 # Project structure
 ```
 ├── configs                           <- Configs for the project
