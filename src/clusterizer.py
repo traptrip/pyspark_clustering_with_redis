@@ -1,11 +1,14 @@
-import logging
+import os
 import pickle
+import shutil
 
 from pyspark.ml.clustering import KMeans
 from pyspark.ml.evaluation import ClusteringEvaluator
 from pyspark.ml.feature import VectorAssembler, MinMaxScaler
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
+
+from src.logger import LOGGER
 
 
 class Clusterizer:
@@ -24,7 +27,7 @@ class Clusterizer:
         self.model = KMeans(k=config.model.k, seed=config.model.seed)
         self.cfg = config
 
-        logging.info("Process data")
+        LOGGER.info("Process data")
         self.preprocess(raw_data)
 
     def preprocess(self, raw_data):
@@ -52,14 +55,16 @@ class Clusterizer:
         self.data = scaler.fit(data).transform(data)
 
     def fit(self):
-        logging.info("Training")
+        LOGGER.info("Training")
         metric = ClusteringEvaluator()
         self.model = self.model.fit(self.data)
         pred = self.model.transform(self.data)
 
-        logging.info("Evaluating")
+        LOGGER.info("Evaluating")
         m = metric.evaluate(pred)
         return m
 
     def save(self, path):
+        if os.path.exists(path):
+            shutil.rmtree(path)
         self.model.save(path)
